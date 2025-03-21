@@ -1,13 +1,13 @@
 ﻿using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 namespace Assets.Scrips.Semana1
 {
     public class Snake : MonoBehaviour
     {
-
-        public static Snake Instance { get; private set; }
 
         public int Length = 1;
         public ScoreManager scoreManager;
@@ -20,16 +20,16 @@ namespace Assets.Scrips.Semana1
         private float moveTimer = 0f;
         private float fixedY; // Para mantener la serpiente en el plano 3D
 
+        private SnakeControls controls;
+        private Vector2 inputDirection;
+
         private void Awake()
         {
-            if (Instance == null)
-            {
-                Instance = this;
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
+
+
+            controls = new SnakeControls();
+            controls.Gameplay.Move.performed += ctx => inputDirection = ctx.ReadValue<Vector2>();
+            controls.Enable();
         }
 
         private void Start()
@@ -51,22 +51,13 @@ namespace Assets.Scrips.Semana1
 
         private void HandleInput()
         {
-            if (Input.GetKeyDown(KeyCode.W) && direction != Vector3.back)
+            if (inputDirection.y > 0 && direction != Vector3.back)
                 direction = Vector3.forward;
-            else if (Input.GetKeyDown(KeyCode.S) && direction != Vector3.forward)
+            else if (inputDirection.y < 0 && direction != Vector3.forward)
                 direction = Vector3.back;
-            else if (Input.GetKeyDown(KeyCode.A) && direction != Vector3.right)
+            else if (inputDirection.x < 0 && direction != Vector3.right)
                 direction = Vector3.left;
-            else if (Input.GetKeyDown(KeyCode.D) && direction != Vector3.left)
-                direction = Vector3.right;
-
-            if (Input.GetKeyDown(KeyCode.UpArrow) && direction != Vector3.back)
-                direction = Vector3.forward;
-            else if (Input.GetKeyDown(KeyCode.DownArrow) && direction != Vector3.forward)
-                direction = Vector3.back;
-            else if (Input.GetKeyDown(KeyCode.LeftArrow) && direction != Vector3.right)
-                direction = Vector3.left;
-            else if (Input.GetKeyDown(KeyCode.RightArrow) && direction != Vector3.left)
+            else if (inputDirection.x > 0 && direction != Vector3.left)
                 direction = Vector3.right;
         }
 
@@ -100,9 +91,9 @@ namespace Assets.Scrips.Semana1
             if (other.CompareTag("Apple"))
             {
                 Destroy(other.gameObject);
-                UpdateLength();
                 scoreManager.UpdateScore(10);
                 GameManager.Instance.SpawnApple();
+                UpdateLength();
             }
         }
 
@@ -112,6 +103,19 @@ namespace Assets.Scrips.Semana1
             segment.position = snakeSegments[snakeSegments.Count - 1].position;
             snakeSegments.Add(segment);
             Length++;
+        }
+
+        private void OnDestroy()
+        {
+            controls.Disable();
+        }
+
+        private void OnCollisionEnter(Collision collision)
+        {
+            if (collision.gameObject.tag == "Block")
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }

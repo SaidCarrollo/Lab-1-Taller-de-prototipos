@@ -10,6 +10,12 @@ namespace Assets.Scrips.Semana1
         public Text BestScoreT;
         public ScoreManager scoreManager;
 
+        private void Start()
+        {
+            UpdateActualScore();
+            UpdateBestScore();
+        }
+
         public void UpdateActualScore()
         {
             ActualScore.text = "Score: " + scoreManager.Score.ToString();
