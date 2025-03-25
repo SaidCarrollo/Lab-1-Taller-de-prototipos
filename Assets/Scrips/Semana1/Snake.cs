@@ -114,6 +114,7 @@ namespace Assets.Scrips.Semana1
         {
             if (collision.gameObject.tag == "Block")
             {
+                GameManager.Instance.GameOver();
                 Destroy(gameObject);
             }
         }

@@ -1,27 +1,14 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Assets.Scrips.Semana1
 {
-    public class GameManager : MonoBehaviour
+    public class GameManager : MonoBehaviourSingleton<GameManager>
     {
-        public static GameManager Instance { get; private set; }
-
         public Snake player;
         public GameObject Apple;
-        public Vector2 spawnArea = new Vector2(10, 10); // Tamaño del área de generación
-
-        private void Awake()
-        {
-            if (Instance == null)
-            {
-                Instance = this;
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
-        }
+        public Vector2 spawnArea = new Vector2(10, 10);
 
         private void Start()
         {
@@ -32,15 +19,15 @@ namespace Assets.Scrips.Semana1
         {
             Vector3 spawnPosition = new Vector3(
                 Random.Range(-spawnArea.x / 2, spawnArea.x / 2),
-                player.transform.position.y, // Asegurar que spawnee a la misma altura que la serpiente
+                player.transform.position.y,
                 Random.Range(-spawnArea.y / 2, spawnArea.y / 2)
             );
-
             Instantiate(Apple, spawnPosition, Quaternion.identity);
         }
 
         public void GameOver()
         {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
             Debug.Log("¡Game Over!");
         }
     }
